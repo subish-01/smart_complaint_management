@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #fff3cd; color: #856404; }
+        button {
+            padding: 10px 20px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #005fa3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔌 SCMS Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Frontend Configuration</h2>
+        <div id="frontendStatus" class="status pending">Checking...</div>
+        <pre id="frontendConfig"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Backend Server Connection</h2>
+        <div id="backendStatus" class="status pending">Not tested</div>
+        <button onclick="testBackend()">Test Backend Connection</button>
+        <pre id="backendResult"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Database Connection (via Backend)</h2>
+        <div id="dbStatus" class="status pending">Not tested</div>
+        <button onclick="testDatabase()">Test Database</button>
+        <pre id="dbResult"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>4. API Endpoints Test</h2>
+        <button onclick="testAllEndpoints()">Test All Endpoints</button>
+        <pre id="apiResults"></pre>
+    </div>
+
+    <script src="smart-complaint/api.js"></script>
+    <script>
+        // Check frontend configuration
+        window.addEventListener('DOMContentLoaded', () => {
+            const frontendConfig = {
+                API_BASE_URL: typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'Not defined',
+                WindowLocation: window.location.href,
+                Protocol: window.location.protocol,
+                Host: window.location.host
+            };
+
+            document.getElementById('frontendConfig').textContent = JSON.stringify(frontendConfig, null, 2);
+            document.getElementById('frontendStatus').className = 'status success';
+            document.getElementById('frontendStatus').textContent = '✅ Frontend configured';
+        });
+
+        // Test backend connection
+        async function testBackend() {
+            const statusDiv = document.getElementById('backendStatus');
+            const resultDiv = document.getElementById('backendResult');
+            
+            statusDiv.className = 'status pending';
+            statusDiv.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Backend server is running and accessible';
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    throw new Error('Backend returned error status');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Cannot connect to backend server';
+                resultDiv.textContent = `Error: ${error.message}\n\nMake sure:\n1. Backend server is running (npm run dev)\n2. Server is on http://localhost:5000\n3. MongoDB is connected`;
+            }
+        }
+
+        // Test database connection
+        async function testDatabase() {
+            const statusDiv = document.getElementById('dbStatus');
+            const resultDiv = document.getElementById('dbResult');
+            
+            statusDiv.className = 'status pending';
+            statusDiv.textContent = 'Testing...';
+            
+            try {
+                // Try to fetch complaints - if it works, database is connected
+                const response = await fetch('http://localhost:5000/api/complaints?limit=1');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Database is connected and working';
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    throw new Error(data.message || 'Database error');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Database connection failed';
+                resultDiv.textContent = `Error: ${error.message}\n\nMake sure:\n1. MongoDB is running\n2. MONGODB_URI in backend/.env is correct\n3. Backend server is running`;
+            }
+        }
+
+        // Test all API endpoints
+        async function testAllEndpoints() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.textContent = 'Testing endpoints...\n\n';
+            
+            const endpoints = [
+                { name: 'Health Check', url: '/api/health', method: 'GET' },
+                { name: 'Get Complaints', url: '/api/complaints', method: 'GET' },
+                { name: 'Analytics Stats', url: '/api/analytics/stats', method: 'GET' },
+                { name: 'Analytics Categories', url: '/api/analytics/by-category', method: 'GET' },
+            ];
+            
+            let results = '';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`http://localhost:5000${endpoint.url}`);
+                    const data = await response.json();
+                    results += `✅ ${endpoint.name}: ${response.status} OK\n`;
+                    if (data.success !== undefined) {
+                        results += `   Success: ${data.success}\n`;
+                    }
+                } catch (error) {
+                    results += `❌ ${endpoint.name}: ${error.message}\n`;
+                }
+                results += '\n';
+            }
+            
+            resultsDiv.textContent = results;
+        }
+    </script>
+</body>
+</html>
