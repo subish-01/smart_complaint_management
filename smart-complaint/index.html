@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Complaint Management System (SCMS)</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Smart Complaint Management System (SCMS)</h1>
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#complaint">Register Complaint</a>
+        <a href="#dashboard">My Complaints</a>
+        <a href="#public-dashboard">Public Dashboard</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#admin">Admin</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="notification" class="notification"></div>
+
+  <section id="home" class="section">
+    <div class="hero">
+      <h2>Welcome to SCMS</h2>
+      <p class="hero-text">
+        A centralized digital platform for citizens to report civic issues
+        efficiently. Track and resolve complaints transparently using AI-powered categorization and analytics.
+      </p>
+      <div class="hero-features">
+        <div class="feature-card">
+          <div class="feature-icon">📍</div>
+          <h3>Geolocation</h3>
+          <p>Precise location tracking</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI Categorization</h3>
+          <p>Smart complaint classification</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Real-time Analytics</h3>
+          <p>Data-driven insights</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Notifications</h3>
+          <p>Instant status updates</p>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="scrollToSection('complaint')">Report an Issue</button>
+    </div>
+  </section>
+
+  <section id="complaint" class="section">
+    <h2>Register Your Complaint</h2>
+    <form id="complaintForm" class="complaint-form">
+      <div class="form-group">
+        <label for="name">Full Name <span class="required">*</span></label>
+        <input type="text" id="name" required aria-required="true" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input type="email" id="email" required aria-required="true" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number <span class="required">*</span></label>
+        <input type="tel" id="phone" required aria-required="true" />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Complaint Category <span class="required">*</span></label>
+        <select id="category" required aria-required="true">
+          <option value="">--Select Category--</option>
+          <option value="Garbage">Garbage Collection</option>
+          <option value="Street Light">Street Light Failure</option>
+          <option value="Water Leakage">Water Leakage</option>
+          <option value="Road Damage">Road Damage/Potholes</option>
+          <option value="Drainage">Drainage Issues</option>
+          <option value="Parks">Parks & Recreation</option>
+          <option value="Noise">Noise Pollution</option>
+          <option value="Traffic">Traffic & Parking</option>
+          <option value="Others">Others</option>
+        </select>
+        <small class="form-hint">AI will auto-categorize based on your description</small>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location <span class="required">*</span></label>
+        <div class="location-input-group">
+          <input type="text" id="location" placeholder="Enter your area or ward" required aria-required="true" />
+          <button type="button" id="getLocationBtn" class="btn-secondary" aria-label="Get current location">
+            📍 Use Current Location
+          </button>
+        </div>
+        <div id="locationStatus" class="location-status"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description <span class="required">*</span></label>
+        <textarea id="description" rows="4" placeholder="Describe your issue in detail..." required aria-required="true"></textarea>
+        <small class="form-hint">AI will analyze urgency based on keywords (emergency, urgent, immediate, etc.)</small>
+      </div>
+
+      <div class="form-group">
+        <label for="photo">Upload Photo/Video (optional)</label>
+        <input type="file" id="photo" accept="image/*,video/*" multiple />
+        <div id="previewContainer" class="preview-container"></div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="notifyEmail" checked />
+          Send email notifications about status updates
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="notifySMS" />
+          Send SMS notifications about status updates
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary">Submit Complaint</button>
+      <p id="message" class="form-message"></p>
+    </form>
+  </section>
+
+  <section id="dashboard" class="section">
+    <h2>My Complaints</h2>
+    <div class="filter-controls">
+      <select id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+      </select>
+      <input type="text" id="searchInput" placeholder="Search complaints..." />
+    </div>
+    <div id="myComplaintsContainer">
+      <table id="complaintTable" class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Urgency</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="emptyState" class="empty-state">
+        <p>No complaints found. <a href="#complaint" onclick="scrollToSection('complaint')">Report your first issue</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="public-dashboard" class="section">
+    <h2>Public Dashboard - All Complaints</h2>
+    <p class="section-description">Transparent view of all community complaints for accountability</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalComplaints">0</div>
+        <div class="stat-label">Total Complaints</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="pendingComplaints">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="resolvedComplaints">0</div>
+        <div class="stat-label">Resolved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="resolutionRate">0%</div>
+        <div class="stat-label">Resolution Rate</div>
+      </div>
+    </div>
+    <table id="publicTable" class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Category</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Urgency</th>
+          <th>Submitted</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="analytics" class="section">
+    <h2>Analytics & Insights</h2>
+    <div class="analytics-grid">
+      <div class="analytics-card">
+        <h3>Complaints by Category</h3>
+        <canvas id="categoryChart"></canvas>
+      </div>
+      <div class="analytics-card">
+        <h3>Complaints by Status</h3>
+        <canvas id="statusChart"></canvas>
+      </div>
+      <div class="analytics-card">
+        <h3>Resolution Timeline</h3>
+        <canvas id="timelineChart"></canvas>
+      </div>
+      <div class="analytics-card">
+        <h3>Top Locations</h3>
+        <div id="topLocations"></div>
+      </div>
+    </div>
+    <div class="trend-analysis">
+      <h3>Trend Analysis</h3>
+      <div id="trendInsights"></div>
+    </div>
+  </section>
+
+  <section id="admin" class="section">
+    <h2>Administrative Dashboard</h2>
+    <div class="admin-controls">
+      <button id="adminLoginBtn" class="btn-secondary">Admin Login</button>
+      <div id="adminPanel" class="admin-panel" style="display: none;">
+        <h3>Manage Complaints</h3>
+        <div class="admin-filters">
+          <select id="adminStatusFilter">
+            <option value="all">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+          <select id="adminUrgencyFilter">
+            <option value="all">All Urgency</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+          <button id="prioritizeBtn" class="btn-secondary">Auto-Prioritize</button>
+        </div>
+        <table id="adminTable" class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Urgency</th>
+              <th>Priority Score</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="feedback" class="section" style="display: none;">
+    <h2>Provide Feedback</h2>
+    <div id="feedbackForm" class="feedback-form">
+      <!-- Feedback form will be dynamically inserted -->
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <h2>About the Project</h2>
+    <div class="about-content">
+      <p>
+        <strong>Team:</strong> Four Corners<br>
+        <strong>Leader:</strong> Jannathul Firdhouse<br>
+        <strong>Members:</strong> Subish, Muthamil, Priya<br><br>
+        Our mission is to improve urban governance with real-time issue tracking and transparent complaint resolution.
+      </p>
+      <h3>Key Features</h3>
+      <ul class="features-list">
+        <li>✅ AI-powered automatic categorization</li>
+        <li>✅ Urgency detection from complaint content</li>
+        <li>✅ Geolocation for precise issue reporting</li>
+        <li>✅ Real-time status tracking</li>
+        <li>✅ Email and SMS notifications</li>
+        <li>✅ Comprehensive analytics dashboard</li>
+        <li>✅ Transparent public complaint visibility</li>
+        <li>✅ Administrative prioritization tools</li>
+        <li>✅ Feedback and rating system</li>
+        <li>✅ Privacy and security measures</li>
+      </ul>
+      <a href="https://youtu.be/OLygr11h9Z8" target="_blank" class="btn-primary">Watch Demo</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Smart Complaint Management System | Made by Team Four Corners</p>
+    <p class="footer-links">
+      <a href="#privacy">Privacy Policy</a> | 
+      <a href="#terms">Terms of Service</a> | 
+      <a href="#contact">Contact</a>
+    </p>
+  </footer>
+
+  <!-- Modal for Complaint Details -->
+  <div id="complaintModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="api.js" onload="console.log('API loaded successfully')" onerror="console.error('Failed to load api.js')"></script>
+  <script src="script.js" onload="console.log('Script loaded successfully')" onerror="console.error('Failed to load script.js')"></script>
+</body>
+</html>
