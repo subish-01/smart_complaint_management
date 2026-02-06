@@ -278,7 +278,7 @@ const analyticsAPI = {
 
 // ==================== CHATBOT API (GEMINI) ====================
 const chatbotAPI = {
-  apiKey: "AIzaSyCuaqgiNCtOyxjFOBvRjlEUq4XmRbAbqXc", // User provided key
+  apiKey: GEMINI_API_KEY, // User provided key
  apiUrl: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
 
 
