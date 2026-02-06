@@ -325,9 +325,34 @@
       <div id="modalBody"></div>
     </div>
   </div>
+    <!-- Chatbot Help Assistant -->
+    <div id="chatbotWidget" class="chatbot-widget">
+      <div id="chatbotPanel" class="chatbot-panel">
+        <div class="chatbot-header">
+          <h3>SCMS Help Assistant</h3>
+          <button id="chatbotClose" class="chatbot-close" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="chatbotMessages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area">
+          <input type="text" id="chatbotInput" placeholder="Ask how to use SCMS..." maxlength="200" />
+          <button id="chatbotSend" class="chatbot-send-btn">Send</button>
+        </div>
+        <div class="chatbot-quick-actions">
+          <span class="chatbot-quick-label">Quick questions:</span>
+          <button class="chatbot-quick-btn" data-msg="How do I report a complaint?">Report complaint</button>
+          <button class="chatbot-quick-btn" data-msg="How do I check my complaint status?">Check status</button>
+          <button class="chatbot-quick-btn" data-msg="How do I navigate the website?">Navigation help</button>
+        </div>
+      </div>
+      <button id="chatbotToggle" class="chatbot-toggle" aria-label="Open help chat">
+        <span class="chatbot-icon">💬</span>
+        <span class="chatbot-label">Help</span>
+      </button>
+    </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="api.js" onload="console.log('API loaded successfully')" onerror="console.error('Failed to load api.js')"></script>
+  <script src="chatbot.js" onload="console.log('Chatbot loaded successfully')" onerror="console.error('Failed to load chatbot.js')"></script>
   <script src="script.js" onload="console.log('Script loaded successfully')" onerror="console.error('Failed to load script.js')"></script>
 </body>
 </html>
