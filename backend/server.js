@@ -12,6 +12,7 @@ const complaintRoutes = require('./routes/complaints');
 const adminRoutes = require('./routes/admin');
 const analyticsRoutes = require('./routes/analytics');
 const authRoutes = require('./routes/auth');
+const chatbotRoutes = require('./routes/chatbot');
 
 const app = express();
 
@@ -37,11 +38,12 @@ app.use('/api/complaints', complaintRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'SCMS Backend is running',
     timestamp: new Date().toISOString()
   });
@@ -78,15 +80,15 @@ app.listen(PORT, () => {
 
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
-.then(() => {
-  console.log('✅ Connected to MongoDB');
-})
-.catch((error) => {
-  console.error('❌ MongoDB connection error:', error.message);
-  console.error('⚠️  Server is running but MongoDB is not connected.');
-  console.error('⚠️  Please start MongoDB or update MONGODB_URI in .env file');
-  console.error('⚠️  API endpoints will not work until MongoDB is connected.');
-});
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error.message);
+    console.error('⚠️  Server is running but MongoDB is not connected.');
+    console.error('⚠️  Please start MongoDB or update MONGODB_URI in .env file');
+    console.error('⚠️  API endpoints will not work until MongoDB is connected.');
+  });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {

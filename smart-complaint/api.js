@@ -278,71 +278,26 @@ const analyticsAPI = {
 
 // ==================== CHATBOT API (GEMINI) ====================
 const chatbotAPI = {
-  apiKey: GEMINI_API_KEY, // User provided key
- apiUrl: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-
-
   async generateResponse(userMessage) {
-    const systemPrompt = `
-You are the official AI Assistant for the "Smart Complaint Management System" (SCMS). 
-Your role is to help citizens and administrators use this specific website.
-
-**Project Details:**
-- **Name:** Smart Complaint Management System (SCMS)
-- **Purpose:** digital platform for citizens to report civic issues (garbage, potholes, street lights, etc.)
-- **Key Features:** Geolocation tracking, AI categorization, Real-time status updates (Pending, In Progress, Resolved), Public Dashboard, Admin Analytics.
-- **Team:** Created by Team "Four Corners" (Leader: Jannathul Firdhouse, Members: Subish, Muthamil, Priya).
-
-**Strict Rules:**
-1. **Scope Restriction:** You MUST ONLY answer questions related to the SCMS website, complaint reporting, civic issues, or the project details listed above.
-2. **Refusal:** If the user asks about general knowledge, math, history, coding, or anything unrelated to this project, politely reply: "I can only assist with queries related to the Smart Complaint Management System."
-3. **Tone:** Professional, helpful, and concise.
-
-**Website Navigation Context:**
-- "Home": Main overview.
-- "Register Complaint": Form to submit new issues.
-- "My Complaints": Track submitted issues.
-- "Public Dashboard": View community issues.
-- "Admin": Administrative login.
-
-User Query: "${userMessage}"
-Answer:
-    `;
-
-    const payload = {
-      contents: [{
-        parts: [{ text: systemPrompt }]
-      }]
-    };
-
     try {
-      const response = await fetch(`${this.apiUrl}?key=${this.apiKey}`, {
+      // Call our backend proxy instead of calling Gemini directly
+      const response = await fetch(`${API_BASE_URL}/chatbot/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ message: userMessage })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle Google's error format specifically
-        const errorMsg = data.error?.message || data.message || "Unknown API error";
-        console.error("Gemini API Error Detail:", data);
-        throw new Error(errorMsg);
+        throw new Error(data.error || data.message || "Unknown API error");
       }
 
-      // Extract the text from Gemini response structure
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-      } else {
-        console.error("Unexpected Gemini response:", data);
-        throw new Error("Invalid response format from AI");
-      }
+      return data.reply;
     } catch (error) {
       console.error("Chatbot API Connection Error:", error);
-      // Return the actual error to the user UI for debugging purposes
       return `Detailed Error: ${error.message}. Please check console for more info.`;
     }
   }
